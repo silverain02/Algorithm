@@ -1,6 +1,4 @@
 def solution(s):
-    answer = 0
-    
     lst = []
     new_s = ''
     
@@ -22,7 +20,4 @@ def solution(s):
         lst.append(len(new_s))
         new_s =''
         
-    answer = min(lst)
-    
-    return answer
-
+    return min(lst)
