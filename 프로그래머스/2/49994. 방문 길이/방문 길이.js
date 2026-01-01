@@ -1,30 +1,32 @@
 function solution(dirs) {
-    const visited = new Set();
-    let x = 0, y = 0;
+    //0. 초기화
+    let v = [0,0];
+    const map = new Map();
+    let answer = 0;
     
-    const moves = {
-        'U': [0, 1],
-        'D': [0, -1],
-        'L': [-1, 0],
-        'R': [1, 0]
-    };
-
-    for (let dir of dirs) {
-        const [dx, dy] = moves[dir];
-        const nx = x + dx;
-        const ny = y + dy;
-
-        // 범위를 벗어나면 무시
-        if (nx < -5 || nx > 5 || ny < -5 || ny > 5) continue;
-
-        // 경로(길)를 저장 (양방향)
-        visited.add(`${x},${y}:${nx},${ny}`);
-        visited.add(`${nx},${ny}:${x},${y}`);
-
-        // 위치 갱신
-        x = nx;
-        y = ny;
-    }
-
-    return visited.size / 2;  // 양방향 저장했으므로 2로 나눔
+    //1. dirs순회
+    dirs.split('').forEach(e=>{
+        //1-1. node이동
+        let nv;
+        if (e=='U') nv = [v[0],v[1]+1];
+        else if (e=='L') nv = [v[0]-1,v[1]];
+        else if (e=='R') nv = [v[0]+1,v[1]];
+        else nv = [v[0],v[1]-1];
+        
+        //1-2. 경계 확인
+        if(nv[0]>=-5 && nv[0]<=5 && nv[1]>=-5 && nv[1]<=5){
+            //1-3. Map 중복 확인
+            const [strv,strnv] = [v.join(','),nv.join(',')]
+            if(!map.has(strv) || !map.get(strv).has(strnv)){
+                answer ++;
+                if(!map.has(strv)) map.set(strv,new Set())
+                if(!map.has(strnv)) map.set(strnv,new Set())
+                map.get(strv).add(strnv)
+                map.get(strnv).add(strv)
+            }
+            //1-4. node update
+            v = nv;
+        }
+    })
+    return answer
 }
