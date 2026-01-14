@@ -1,54 +1,83 @@
-function combinations(arr,n){
-    //1개만 뽑는다면 그대로 조합을 반환하며 탈출 조건으로 사용
-    if(n===1) return arr.map((v)=>[v]);
-    const result = [];
-    
-    //요소를 순환
-    arr.forEach((fixed,idx,arr)=>{
-        //현 idx이후 요소를 추출
-        //idx번쨰는 선택된 요소
-        const rest = arr.slice(idx+1);
-        //선택된 요소와 재귀호출을 통해 구한 조합을 합침
-        const combis = combinations(rest, n - 1);
-        const combine = combis.map((v) => [fixed, ...v]);
-        //결과값을 추가
-        result.push(...combine);
+function comb(arr,n) {
+    if(n==1){
+        return arr.map((val)=>[val])
+    }
+    let result = [];
+    arr.forEach((fixed,idx,origins)=>{
+        let rest = origins.slice(idx+1)
+        let combs = comb(rest,n-1)
+        combs.forEach((comb)=>{
+            result.push([fixed,...comb]);
         })
-    //결과 반환
+    })
     return result
 }
 
 function solution(orders, course) {
-    const answer = [];
-    
-    for(const c of course){
-        //1. 각 코스요리 길이에 대해
-        const menu = [];
-        for(const order of orders){
-            //모든 주만에 대해
-            const orderArr = order.split("").sort(); //주문을 배열로 만든 후 정렬
-            //2. combinations()로 메뉴 구성을 모두 구함
-            const comb = combinations(orderArr,c);
-            menu.push(...comb);
-        }
-        
-        //3. 각 메뉴 구성이 몇번 주문되었는지 세줌
-        const counter={}
-        for (const m of menu){
-            const key = m.join(''); //배열을 문자열로 변환
-            counter[key]=(counter[key]||0)+1;
-        }
-        
-        const max = Math.max(...Object.values(counter));
-        if(max>1){//4. 가장 많이 주문된 구성이 1번 이상 주문된 경우
-            for (const [key,value] of Object.entries(counter)){
-                if(value==max){//가장많이 주문된 구성을 찾아서
-                    answer.push(key); //6.정답 배열에 추가
+    //0. 초기화
+    const nmap = new Map()
+    course.forEach((c)=>{
+        nmap.set(c,new Set())
+    })
+    const map = new Map()
+    //1. orders순회
+    orders.forEach((e)=>{
+        //1-1. order 요소 조합 -> 키 리스트 생성
+        let keys = [];
+        const arr = e.split('')
+        course.forEach((c)=>{
+            if(c <= orders.length){
+                const temp = comb(arr,c)
+                if(temp.length!==0){
+                    keys = keys.concat(temp)
                 }
             }
-        }
-    }
-    //7. 오름 차순 정렬 후 반환
-    return answer.sort();
+        })
+        //1-2. keys순환하며 매핑
+        keys.forEach((k)=>{
+            const str = k.sort().join('');
+            //1-2-1.map에 추가
+            if(!map.has(str)) map.set(str,1)
+            else map.set(str,map.get(str)+1)
+            //1-2-2 nmap 업데이터
+            nmap.get(str.length).add(str)
+        })
+    })
     
+    // console.log(nmap,map)
+    //2. map 2개 연결
+    const answers = [];
+    for([k,v] of nmap){
+        // console.log(k,v)
+        let answer = null;
+        let max = 0;
+        
+        const cntmap = new Map()
+        // max값 찾기
+        v.forEach(e=>{
+            if(map.get(e)>max) {
+                [answer,max] = [e,map.get(e)]
+                max = map.get(e)
+            }
+            
+            //cntmap 추가
+            if(!cntmap.has(map.get(e))) cntmap.set(map.get(e),[])
+            cntmap.get(map.get(e)).push(e);
+        })
+        // console.log(max,cntmap)
+        
+        
+        if(max>1){
+            // console.log(cntmap.get(max))
+            cntmap.get(max).forEach(t=>{
+                answers.push(t)
+            })
+        }
+        
+        // answers.push(answer)
+    }
+    
+    // console.log('--',answers.sort())
+    
+    return answers.sort()
 }
