@@ -44,11 +44,9 @@ function solution(orders, course) {
         })
     })
     
-    // console.log(nmap,map)
     //2. map 2개 연결
     const answers = [];
     for([k,v] of nmap){
-        // console.log(k,v)
         let answer = null;
         let max = 0;
         
@@ -64,20 +62,14 @@ function solution(orders, course) {
             if(!cntmap.has(map.get(e))) cntmap.set(map.get(e),[])
             cntmap.get(map.get(e)).push(e);
         })
-        // console.log(max,cntmap)
         
         
         if(max>1){
-            // console.log(cntmap.get(max))
             cntmap.get(max).forEach(t=>{
                 answers.push(t)
             })
         }
-        
-        // answers.push(answer)
     }
-    
-    // console.log('--',answers.sort())
     
     return answers.sort()
 }
