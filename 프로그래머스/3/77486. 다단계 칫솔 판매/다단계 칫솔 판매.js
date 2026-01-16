@@ -1,28 +1,43 @@
 function solution(enroll, referral, seller, amount) {
-    const tree = {}; // Object도 가능
-    const score = {};
+  //1. 해시맵 초기화 O(N)
+  const map = new Map();
+  const tree = new Map();
 
-    for (let i = 0; i < enroll.length; i++) {
-        tree[enroll[i]] = referral[i];
-        score[enroll[i]] = 0;
+  enroll.forEach((e, idx) => {
+    tree.set(e, referral[idx]);
+    map.set(e, 0);
+  });
+  tree.set("-", null);
+  map.set("-", 0);
+
+  //2. seller 순회 O(M)
+  seller.forEach((s, idx) => {
+    //2-1. tree확인
+    let price = amount[idx] * 100;
+    let v = s;
+    let parent = tree.get(v);
+      
+    while (parent !== null) {
+        //10퍼 버림
+        const passUp = Math.floor(price*0.1);
+        const keep = price - passUp;
+        
+        map.set(v,map.get(v)+keep);
+        
+        if(passUp<1) break;
+        
+        
+        v = parent;
+        price = passUp;
+        parent = tree.get(v);
     }
-    score["-"] = 0;
+    if(parent==null) map.set(v, map.get(v) + price);
+  });
 
-    for (let i = 0; i < seller.length; i++) {
-        let target = seller[i];
-        let cost = amount[i] * 100;
-
-        while (true) {
-            const give = Math.floor(cost * 0.1);
-            const keep = cost - give;
-            score[target] += keep;
-
-            if (give < 1 || target === "-") break;
-
-            target = tree[target];
-            cost = give;
-        }
-    }
-
-    return enroll.map(name => score[name]);
+  //3. map -> result 전환
+  const result = [];
+  enroll.forEach((e) => {
+    result.push(map.get(e));
+  });
+    return result
 }
